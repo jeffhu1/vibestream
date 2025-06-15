@@ -8,6 +8,7 @@ function App() {
   const [error, setError] = useState('');
   const [spotifyToken, setSpotifyToken] = useState(null);
   const [currentTrack, setCurrentTrack] = useState(null);
+  const [savingPlaylist, setSavingPlaylist] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('spotify_token');
@@ -77,6 +78,30 @@ function App() {
     }
   };
 
+  const saveToSpotify = async () => {
+    if (!spotifyToken || !playlist.length) return;
+
+    setSavingPlaylist(true);
+    setError('');
+
+    try {
+      const trackUris = playlist.map(track => track.uri);
+      const response = await axios.post('/api/spotify/create-playlist', {
+        accessToken: spotifyToken,
+        vibe,
+        trackUris,
+      });
+
+      if (response.data.success) {
+        window.open(response.data.playlistUrl, '_blank');
+      }
+    } catch (error) {
+      setError('Failed to create playlist in Spotify');
+    } finally {
+      setSavingPlaylist(false);
+    }
+  };
+
   if (!spotifyToken) {
     return (
       <div className="container">
@@ -131,8 +156,19 @@ function App() {
       {playlist.length > 0 && (
         <div className="playlist-section">
           <div className="playlist-header">
-            <h2>Your "{vibe}" Playlist</h2>
-            <p style={{ color: '#a0a0a0' }}>{playlist.length} tracks</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h2>Your "{vibe}" Playlist</h2>
+                <p style={{ color: '#a0a0a0' }}>{playlist.length} tracks</p>
+              </div>
+              <button 
+                className="save-playlist-btn" 
+                onClick={saveToSpotify}
+                disabled={savingPlaylist}
+              >
+                {savingPlaylist ? 'Saving...' : 'Save to Spotify'}
+              </button>
+            </div>
           </div>
           <div className="track-list">
             {playlist.map((track, index) => (

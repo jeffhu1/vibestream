@@ -113,7 +113,7 @@ app.post('/api/generate-playlist', async (req, res) => {
 });
 
 app.get('/api/spotify/auth', (req, res) => {
-  const scopes = 'streaming user-read-email user-read-private';
+  const scopes = 'streaming user-read-email user-read-private playlist-modify-public playlist-modify-private';
   const redirectUri = process.env.SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:5173/callback';
   const authUrl = `https://accounts.spotify.com/authorize?${new URLSearchParams({
     response_type: 'code',
@@ -154,6 +154,59 @@ app.post('/api/spotify/callback', async (req, res) => {
   } catch (error) {
     console.error('Error exchanging code for token:', error);
     res.status(500).json({ error: 'Failed to authenticate with Spotify' });
+  }
+});
+
+app.post('/api/spotify/create-playlist', async (req, res) => {
+  const { accessToken, vibe, trackUris } = req.body;
+
+  try {
+    // Get user ID
+    const userResponse = await axios.get('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const userId = userResponse.data.id;
+
+    // Create playlist
+    const playlistResponse = await axios.post(
+      `https://api.spotify.com/v1/users/${userId}/playlists`,
+      {
+        name: `${vibe} Vibes`,
+        description: `AI-generated playlist for "${vibe}" mood by VibeStream`,
+        public: false,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const playlistId = playlistResponse.data.id;
+
+    // Add tracks to playlist
+    await axios.post(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      {
+        uris: trackUris,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      playlistId,
+      playlistUrl: playlistResponse.data.external_urls.spotify,
+    });
+  } catch (error) {
+    console.error('Error creating playlist:', error.response?.data || error);
+    res.status(500).json({ error: 'Failed to create playlist' });
   }
 });
 

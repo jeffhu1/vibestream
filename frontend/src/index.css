@@ -194,3 +194,26 @@ body {
   margin-bottom: 1rem;
   color: #ef4444;
 }
+
+.save-playlist-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #1db954;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.save-playlist-btn:hover {
+  background: #1ed760;
+  transform: translateY(-2px);
+}
+
+.save-playlist-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
