@@ -3,14 +3,22 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
 import axios from 'axios';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the frontend build
+app.use(express.static(join(__dirname, '../frontend/dist')));
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -208,6 +216,16 @@ app.post('/api/spotify/create-playlist', async (req, res) => {
     console.error('Error creating playlist:', error.response?.data || error);
     res.status(500).json({ error: 'Failed to create playlist' });
   }
+});
+
+// Health check endpoint for Railway
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Catch-all route to serve the frontend app
+app.get('*', (req, res) => {
+  res.sendFile(join(__dirname, '../frontend/dist/index.html'));
 });
 
 app.listen(port, () => {

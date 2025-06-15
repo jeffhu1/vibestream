@@ -1,0 +1,16 @@
+{
+  "name": "vibestream",
+  "version": "1.0.0",
+  "description": "AI-powered Spotify playlist generator",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && npm install && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
