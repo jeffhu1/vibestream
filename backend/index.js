@@ -122,7 +122,7 @@ app.post('/api/generate-playlist', async (req, res) => {
 
 app.get('/api/spotify/auth', (req, res) => {
   const scopes = 'streaming user-read-email user-read-private playlist-modify-public playlist-modify-private';
-  const redirectUri = process.env.SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:5173/callback';
+  const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
   const authUrl = `https://accounts.spotify.com/authorize?${new URLSearchParams({
     response_type: 'code',
     client_id: process.env.SPOTIFY_CLIENT_ID,
@@ -134,7 +134,7 @@ app.get('/api/spotify/auth', (req, res) => {
 
 app.post('/api/spotify/callback', async (req, res) => {
   const { code } = req.body;
-  const redirectUri = process.env.SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:5173/callback';
+  const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
 
   try {
     const response = await axios.post(
