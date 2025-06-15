@@ -49,7 +49,7 @@ app.post('/api/generate-playlist', async (req, res) => {
     const { vibe } = req.body;
 
     const message = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
+      model: 'claude-opus-4-20250514',
       max_tokens: 1024,
       messages: [{
         role: 'user',
